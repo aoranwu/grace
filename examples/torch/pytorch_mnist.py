@@ -114,7 +114,7 @@ params = {'compressor': 'topk', 'memory': 'residual', 'communicator': 'allgather
 grc = grace_from_params(params)
 
 # Horovod: wrap optimizer with DistributedOptimizer.
-optimizer = hvd.DistributedOptimizer(optimizer, grc, named_parameters=model.named_parameters())
+optimizer = hvd.DistributedOptimizer(optimizer, grace=grc, named_parameters=model.named_parameters())
 
 
 def train(epoch):
