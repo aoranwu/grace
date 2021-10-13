@@ -33,6 +33,7 @@ parser.add_argument('--log-interval', type=int, default=10, metavar='N',
                     help='how many batches to wait before logging training status')
 parser.add_argument('--fp16-allreduce', action='store_true', default=False,
                     help='use fp16 compression during allreduce')
+parser.add_argument("--compressed", action='store_true',default=True,help='use gradient compression')
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
 
@@ -113,8 +114,9 @@ from grace_dl.torch.helper import grace_from_params
 params = {'compressor': 'topk', 'memory': 'residual', 'communicator': 'allgather'}
 grc = grace_from_params(params)
 
+if args.compressed:
 # Horovod: wrap optimizer with DistributedOptimizer.
-optimizer = hvd.DistributedOptimizer(optimizer, grace=grc, named_parameters=model.named_parameters())
+    optimizer = hvd.DistributedOptimizer(optimizer, grace=grc, named_parameters=model.named_parameters())
 
 
 def train(epoch):
@@ -170,7 +172,17 @@ def test():
         print('\nTest set: Average loss: {:.4f}, Accuracy: {:.2f}%\n'.format(
             test_loss, 100. * test_accuracy))
 
-
+import time
+total_time = 0
 for epoch in range(1, args.epochs + 1):
+    start = time.time()
     train(epoch)
     test()
+    end = time.time()
+    epoch_time = end-start
+    print('Time taken for training epoch {epoch}:{epoch_time}, compressed:{args.compressed}')
+    total_time += epoch_time
+
+print('Total time taken for training {args.epochs} epochs: {total_time}s, compressed:{args.compressed}')
+
+
