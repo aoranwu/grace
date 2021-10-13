@@ -180,9 +180,9 @@ for epoch in range(1, args.epochs + 1):
     test()
     end = time.time()
     epoch_time = end-start
-    print('Time taken for training epoch {epoch}:{epoch_time}, compressed:{args.compressed}')
+    print(f'Time taken for training epoch {epoch}:{epoch_time}, compressed:{args.compressed}')
     total_time += epoch_time
 
-print('Total time taken for training {args.epochs} epochs: {total_time}s, compressed:{args.compressed}')
+print(f'Total time taken for training {args.epochs} epochs: {total_time}s, compressed:{args.compressed}')
 
 
